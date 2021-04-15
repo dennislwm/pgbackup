@@ -14,6 +14,10 @@ Test driven development ["TDD"] of a PostgreSQL CLI backup tool to AWS S3 or loc
   - [Test Driven Development](#test-driven-development)
     - [Mocking in Test](#mocking-in-test)
     - [Storage](#storage)
+  - [Usage](#usage)
+    - [Workstation](#workstation)
+    - [Production](#production)
+  - [Packaging](#packaging)
 
 <!-- /TOC -->
 
@@ -122,3 +126,50 @@ The file `test_pgdump.py` ensures that our code runs the proper third-party util
 ### Storage
 
 The file `test_storage.py` ensures that our strategy for storing locally and on AWS S3 works as expected.
+
+## Usage
+
+### Workstation
+
+Before we can use pgbackup in our workstation, we need to activate virtualenv and install our package locally.
+
+*Note: You'll need to substitute in your database values for [USERNAME], [PASSWORD] and [SERVER_IP].*
+
+```bash
+$ pipenv shell
+(pgbackup) $ pip install -e .
+(pgbackup) $ pgbackup --driver local ./local-dump.sql postgres://[USERNAME]:[PASSWORD]@[SERVER_IP]:80/sample
+```
+
+### Production
+
+We need to install using `pip3 install pgbackup` and then we can run the command `pgbackup --help`.
+
+```bash
+Usage:
+    Back up a PostgreSQL database locally or to AWS S3.
+
+       [-h] --driver DRIVER DESTINATION url
+
+positional arguments:
+  url                   URL of database to backup
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --driver DRIVER DESTINATION, -d DRIVER DESTINATION
+                        how & where to store backup
+```
+
+## Packaging
+
+We can make our project create a console script for us when a user runs `pip install`. To do this, we need to add an entry point in our `setup.py`:
+
+```python
+    entry_points={
+        'console_scripts': [
+            'pgbackup=pgbackup.cli:main',
+        ]
+    },
+```
+
+Notice that we're referencing our `cli` module with a `:` and a `main`.
