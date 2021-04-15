@@ -11,6 +11,8 @@ Test driven development ["TDD"] of a PostgreSQL CLI backup tool to AWS S3 or loc
     - [Testing connection from Workstation](#testing-connection-from-workstation)
     - [Creating the Virtualenv](#creating-the-virtualenv)
   - [Project Structure](#project-structure)
+  - [Test Driven Development](#test-driven-development)
+    - [Mocking in Test](#mocking-in-test)
 
 <!-- /TOC -->
 
@@ -96,3 +98,22 @@ To activate our new virtualenv, we use the command `pipenv shell`, and to deacti
              |- cli.py                <-- Python script to parse command line
        +- tests/                      <-- Holds any automated tests
           |- test_cli.py              <-- Python script to test CLI
+
+---
+## Test Driven Development
+
+For this project, we're using `pytest` as our testing framework. We wrote a line in our `Makefile` that utilizes the `pytest`.
+
+The file `test_cli.py` ensures that our ArgumentParser works as expected.
+
+### Mocking in Test
+
+We need to write tests that can run without an actual Postgres server running. FOr this, we will need to "stub" our interaction with `pg_dump` tool that comes with Postgres client that we installed.
+
+Before we can use mocking in our tests, we need to install the `pytest-mock` package. This provides us with a `mocker` fixture that we can inject into our tests.
+
+We're going to use `subprocess.Popen` instead of `.run` as we want the code to continue running instead of waiting for the subprocess to end. We're going to use `mocker.patch` on the `subprocess.Popen` in order to replace a different implementation that can be used for our testing.
+
+The `mocker.patch` function creates an object `subprocess.Popen` that contains a method assert_called_with(). We'll use this method to assert the arguments passed to `subprocess.Popen` are as expected.
+
+The file `test_pgdump.py` ensures that our code runs the proper third-party utility, i.e. `pg_dump`.
