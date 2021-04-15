@@ -13,6 +13,7 @@ Test driven development ["TDD"] of a PostgreSQL CLI backup tool to AWS S3 or loc
   - [Project Structure](#project-structure)
   - [Test Driven Development](#test-driven-development)
     - [Mocking in Test](#mocking-in-test)
+    - [Storage](#storage)
 
 <!-- /TOC -->
 
@@ -117,3 +118,7 @@ We're going to use `subprocess.Popen` instead of `.run` as we want the code to c
 The `mocker.patch` function creates an object `subprocess.Popen` that contains a method assert_called_with(). We'll use this method to assert the arguments passed to `subprocess.Popen` are as expected.
 
 The file `test_pgdump.py` ensures that our code runs the proper third-party utility, i.e. `pg_dump`.
+
+### Storage
+
+The file `test_storage.py` ensures that our strategy for storing locally and on AWS S3 works as expected.
