@@ -5,7 +5,7 @@ with open('README.rst', encoding='UTF-8') as file:
 
 setup(
     name='pgbackup',
-    version='0.1.0',
+    version='0.1.1',
     description='Database backups locally or to AWS S3.',
     long_description=readme,
     author='Dennis Lee',

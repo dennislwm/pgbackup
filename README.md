@@ -29,6 +29,7 @@ Create a CLI tool that we can use to easily back up a PostgreSQL database to eit
 1. Database URL to backup
 2. Driver (either `local` or `S3`)
 3. Backup destination (a file path for `local` or a bucket name for `S3`)
+4. Schema (optional dump schema only, not data)
 
 ### Setting up PostgreSQL server
 
@@ -94,16 +95,21 @@ To activate our new virtualenv, we use the command `pipenv shell`, and to deacti
        |- Pipfile.lock                <-- Pipenv lock 
        |- README.md                   <-- GitHub README markdown 
        |- README.rst                  <-- Python setuptools README 
+       |- setup.cfg                   <-- Config file to create distribution wheel
        |- setup.py                    <-- Python script to create installable package
        +- bin/                        <-- Holds any bash scripts
           |- db_setup.sh              <-- CentOS 7 script to create and run our database
+       +- data/                       <-- Sample output
        +- src/
           +- pgbackup/                <-- Holds any business logic
              |- __init__.py
-             |- cli.py                <-- Python script to parse command line
+             |- cli.py                <-- Python module to parse command line
+             |- pgdump.py             <-- Python module to interface with pg_dump tool
+             |- storage.py            <-- Python module to implement drivers
        +- tests/                      <-- Holds any automated tests
-          |- test_cli.py              <-- Python script to test CLI
-
+          |- test_cli.py              <-- Python script to test cli.py
+          |- test_pgdump.py
+          |- test_storage.py
 ---
 ## Test Driven Development
 
@@ -131,7 +137,7 @@ The file `test_storage.py` ensures that our strategy for storing locally and on 
 
 ### Workstation
 
-Before we can use pgbackup in our workstation, we need to activate virtualenv and install our package locally.
+Before we can use `pgbackup` in our workstation, we need to activate virtualenv and install our package locally.
 
 *Note: You'll need to substitute in your database values for [USERNAME], [PASSWORD] and [SERVER_IP].*
 
@@ -141,15 +147,21 @@ $ pipenv shell
 (pgbackup) $ pgbackup --driver local ./local-dump.sql postgres://[USERNAME]:[PASSWORD]@[SERVER_IP]:80/sample
 ```
 
+To uninstall our package.
+
+```bash
+(pgbackup) $ pip uninstall pgbackup
+```
+
 ### Production
 
 We need to install using `pip install pgbackup` and then we can run the command `pgbackup --help`.
 
 ```bash
-Usage:
+usage:
     Back up a PostgreSQL database locally or to AWS S3.
 
-       [-h] --driver DRIVER DESTINATION url
+       [-h] --driver DRIVER DESTINATION [--schema] url
 
 positional arguments:
   url                   URL of database to backup
@@ -158,6 +170,7 @@ optional arguments:
   -h, --help            show this help message and exit
   --driver DRIVER DESTINATION, -d DRIVER DESTINATION
                         how & where to store backup
+  --schema, -s          Dump only the object definitions (schema), not data.
 ```
 
 ## Packaging

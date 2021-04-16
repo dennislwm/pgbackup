@@ -16,3 +16,9 @@ def dump_file_name(url, timestamp=None):
     else:
         return f"{db_name}.sql"
 
+def dump_schema(url):
+    try:
+        return subprocess.Popen(['pg_dump', '-t', '*', '-T', 'pg_*', '-s', url], stdout=subprocess.PIPE)
+    except OSError as err:
+        print(f"Error: {err}")
+        sys.exit(1)

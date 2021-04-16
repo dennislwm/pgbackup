@@ -34,3 +34,16 @@ def test_dump_file_name_with_timestamp():
     timestamp = "2017-12-03T13:14:10"
     assert pgdump.dump_file_name(url, timestamp) == f"db_one-{timestamp}.sql"
 
+def test_dump_schema_calls_pg_dump(mocker):
+    """
+    Utilize pg_dump on schema with the database URL
+    """
+    mocker.patch('subprocess.Popen')
+    assert pgdump.dump_schema(url)
+    subprocess.Popen.assert_called_with(['pg_dump', '-t', '*', '-T', 'pg_*', '-s', url], stdout=subprocess.PIPE)
+
+def test_dump_schema_handles_oserror(mocker):
+    mocker.patch('subprocess.Popen', side_effect=OSError("no such file"))
+    with pytest.raises(SystemExit):
+        pgdump.dump_schema(url)
+

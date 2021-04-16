@@ -21,6 +21,9 @@ def create_parser():
         nargs=2, metavar=("DRIVER", "DESTINATION"),
         action=DriverAction,
         required=True)
+    parser.add_argument('--schema', '-s',
+        help="Dump only the object definitions (schema), not data.",
+        action='store_true')
 
     return parser
 
@@ -30,7 +33,10 @@ def main():
     from pgbackup import pgdump, storage
 
     args = create_parser().parse_args()
-    dump = pgdump.dump(args.url)
+    if args.schema == True:
+        dump = pgdump.dump_schema(args.url)
+    else:
+        dump = pgdump.dump(args.url)
 
     if args.driver == 's3':
         client = boto3.client('s3')

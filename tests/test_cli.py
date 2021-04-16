@@ -44,3 +44,14 @@ def test_parser_with_driver_and_destination(parser):
     assert args.url == url
     assert args.driver == 'local'
     assert args.destination == '/some/path'
+
+def test_parser_with_optional_schema(parser):
+    """
+    The parser will not exit if it receives an optional schema
+    """
+    args = parser.parse_args([url, "--schema", "--driver", "local", "/some/path"])
+    assert args.url == url
+    assert args.driver == 'local'
+    assert args.destination == '/some/path'
+    assert args.schema == True
+
