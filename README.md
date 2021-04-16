@@ -18,6 +18,7 @@ Test driven development ["TDD"] of a PostgreSQL CLI backup tool to AWS S3 or loc
     - [Workstation](#workstation)
     - [Production](#production)
   - [Packaging](#packaging)
+    - [Generating a Wheel](#generating-a-wheel)
 
 <!-- /TOC -->
 
@@ -48,8 +49,7 @@ On our development machine, we'll need to make sure that we have the Postgres cl
 On Red-hat and CentOS systems we'll use the following:
 
 ```bash
-$ wget https://download.postgresql.org/pub/repos/yum/9.6/redhat/
-rhel-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+$ wget https://download.postgresql.org/pub/repos/yum/9.6/redhat/rhel-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm
 $ sudo yum install -y pgdg-redhat-repo-latest.noarch.rpm
 $ sudo yum update -y
 $ sudo yum autoremove -y postgresql
@@ -77,7 +77,7 @@ $ psql postgres://[USERNAME]:[PASSWORD]@[SERVER_IP]:80/sample -c "SELECT count(i
 We'll start by cloning this repository to our workstation. Then, we'll install `pipenv` and create a Python 3 virtualenv for this project.
 
 ```bash
-$ git clone https://github.com/dennislwm/pgbackup .
+$ git clone https://github.com/dennislwm/pgbackup
 $ cd pgbackup
 $ pip3.6 install --user pipenv
 $ pipenv --python $(which python3.6)
@@ -143,7 +143,7 @@ $ pipenv shell
 
 ### Production
 
-We need to install using `pip3 install pgbackup` and then we can run the command `pgbackup --help`.
+We need to install using `pip install pgbackup` and then we can run the command `pgbackup --help`.
 
 ```bash
 Usage:
@@ -173,3 +173,21 @@ We can make our project create a console script for us when a user runs `pip ins
 ```
 
 Notice that we're referencing our `cli` module with a `:` and a `main`.
+
+### Generating a Wheel
+
+Before we can generate our `wheel`, we want to configure `setuptools` to not build the wheel for Python 2. We'll put this configuration in a `setup.cfg`.
+
+```
+[bdist_wheel]
+python-tag = py36
+```
+
+We can run the following commands to build and install our wheel locally:
+
+```bash
+(pgbackup) $ python setup.py bdist_wheel
+(pgbackup) $ pip install dist/pg-backup-0.1.0-py36-none-any.whl
+```
+
+We can also install from a remote source over HTTP, just use a public URL of the `whl` file with `pip install` instead of a local path.
